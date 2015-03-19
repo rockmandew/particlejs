@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="author" content="(C) Epistemex">
+
+	<title>ParticleJS - Candle light demo</title>
+
+	<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
+
+	<style>
+		html, body {
+			padding:0;
+			margin:0;
+			overflow:hidden;
+			}
+		body, .dark {
+			background:#040000;
+			transition:0.7s background-color;
+			}
+		.grey {
+			background:#050508;
+			transition:0.7s background-color;
+			}
+		canvas {
+			position:absolute;
+			left:0;
+			top:0;
+			width:100%;
+			height:100%;
+			}
+		#header {
+			position: absolute;
+			left:75px;
+			top:150px;
+			font:48px Merriweather,sans-serif;
+			color:rgb(170, 80, 20);
+			}
+		#sub {
+			position: absolute;
+			left:75px;
+			top:250px;
+			font:22px Merriweather, sans-serif;
+			color:rgb(150, 60, 20);
+			z-index:1000;
+			}
+
+		.textOnH {
+			color:rgb(170, 80, 20);
+			transition:1.5s color;
+			}
+		.textOnS {
+			color:rgb(150, 60, 20);
+			transition:1.5s color;
+			}
+		.linkOn {
+			color:#c70;
+			transition:1.5s color;
+			}
+
+		.textOffH {
+			color:rgb(70, 80, 100) !important;
+			transition:1.5s color;
+			}
+		.textOffS {
+			color:rgb(70, 60, 100) !important;
+			transition:1.5s color;
+			}
+		.linkOff {
+			color:rgb(80, 90, 110) !important;
+			transition:1.5s color;
+			}
+
+		.button {
+			position: absolute;
+			right:12px;
+			bottom:12px;
+			background:rgba(255,255,255,0.33);
+			padding:5px 10px 0px 10px;
+			border-radius:3px;
+			}
+		.button:hover {
+			position: absolute;
+			right:12px;
+			bottom:12px;
+			background:rgba(255,255,255,0.5);
+			transition: 0.7s background;
+			padding:5px 10px 0 10px;
+			border-radius:3px;
+			}
+		a, a:active {color:#c70;}
+		a:hover {color:#c90;}
+
+		@media (max-width: 1023px) {
+			#header {
+				position: absolute;
+				left:25px;
+				top:90px;
+				font:24px Merriweather,sans-serif;
+				color:rgba(120, 50, 20, 0.75);
+				}
+			#sub {
+				position: absolute;
+				left:25px;
+				top:140px;
+				font:16px Merriweather, sans-serif;
+				color:rgba(120, 50, 20, 0.75);
+				z-index:1000;
+				}
+
+			}
+
+	</style>
+</head>
+<body class="grey">
+
+	<canvas id="canvas"></canvas>
+
+	<p id="header" class="textOffH">
+		ParticleJS candle light
+	</p>
+
+	<p id="sub" class="textOffS">
+		ParticleJS is dual licensed. Download from <a class="linkOff" id="link" href="https://github.com/epistemex/particleJS/" target="_blank">GitHub</a>
+	</p>
+
+	<div class="button">
+		<img id="state" src="gfx/pause.png" width="24" height="24">
+	</div>
+
+<script src="../particle.min.js"></script>
+
+<script>
+
+	var canvas = document.getElementById('canvas'),
+	    ctx = canvas.getContext('2d'),
+	    w, h,
+
+	    imgCandle = new Image,
+	    imgDark = new Image,
+	    imgGlow = new Image,
+	    imgCnt = 3,
+
+		scene,
+	    emitterFlame,
+	    emitterSmoke,
+	    emitterGlow,
+	    shaderFlame,
+	    shaderSmoke,
+	    shaderGlow,
+	    gradientFlame,
+
+	    gravity,
+	    turbulence,
+	    target,
+	    wind,
+	    air,
+
+	    gradOpacityFlame,
+	    gradOpacitySmoke,
+
+	    vel = 0,
+	    mx = 0,
+	    my = 0,
+	    time = 0,
+	    dx = 180,
+	    opacity = 0,
+	    brate = 120,
+	    brate2 = 300,
+
+		state = true;
+
+	setCanvasSize();
+
+	gradientFlame = new ParticleJS.Gradient()
+		.addStop(0,     'rgb(0, 0, 0)')
+		.addStop(0.01,  'rgb(10, 10, 80)')
+		.addStop(0.07,  'rgb(60, 38, 24)')
+		.addStop(0.20,  'rgb(253, 195, 99)')
+		.addStop(0.27,  'rgb(255, 253, 247)')
+		.addStop(0.8,   'rgb(255, 253, 247)')
+		.addStop(0.99,  'rgb(192, 113, 37)')
+		.addStop(1,     '#000');
+
+	// create scene
+	scene = new ParticleJS.Scene({
+		width: canvas.width,
+		height: canvas.height
+	});
+
+	// set up shaders
+	shaderGlow = new ParticleJS.Shader2D.Canvas({
+		canvas    : canvas,
+		r         : 255,
+		g         : 150,
+		b         : 0,
+		colorCells: 10,
+		sizeCells : 2,
+		scaleX    : 0.37
+	});
+
+	shaderFlame = new ParticleJS.Shader2D.Canvas({
+		canvas    : canvas,
+		gradient  : gradientFlame,
+		colorCells: 50,
+		sizeCells : 5
+	});
+
+	shaderSmoke = new ParticleJS.Shader2D.Canvas({
+		canvas    : canvas,
+		r         : 20,
+		g         : 20,
+		b         : 20,
+		colorCells: 8,
+		sizeCells : 8
+	});
+
+	emitterGlow = new ParticleJS.Emitter2D({
+		type          : 'point',
+		x             : 512 + dx,
+		y             : 380,
+		birthRate     : 4,
+		velocity      : 10,
+		randomVelocity: 0.2,
+		life          : 1,
+		size          : 400,
+		blur          : 1,
+		opacity       : 0.033,
+		shader        : shaderGlow,
+		preRender     : false
+	});
+
+	emitterFlame = new ParticleJS.Emitter2D({
+		type          : 'line',
+		x             : 512 + dx,
+		y             : 555,
+		endX          : 512 + dx,
+		endY          : 545,
+		birthRate     : brate,
+		velocity      : 250,
+		randomVelocity: 0.2,
+		life          : 1,
+		spreadAngle   : 0.5,
+		spreadOffset  : 270,
+		size          : 100,
+		blur          : 0.1,
+		randomBlur    : 0.3,
+		opacity       : 0.7,
+		randomOpacity : 0.5,
+		shader        : shaderFlame,
+		preRender     : false
+	});
+
+	emitterSmoke = new ParticleJS.Emitter2D({
+		type          : 'line',
+		x             : 525 + dx,
+		y             : 550,
+		endX          : 535 + dx,
+		endY          : 540,
+		birthRate     : 0,
+		velocity      : 500,
+		randomVelocity: 0.33,
+		life          : 2.2,
+		spreadAngle   : 45,
+		spreadOffset  : 200,
+		size          : 20,
+		blur          : 0.5,
+		randomBlur    : 0.3,
+		opacity       : 0.07,
+		randomOpacity : 0.5,
+		shader        : shaderSmoke,
+		preRender     : false
+	});
+
+	scene
+		.addEmitter(emitterGlow)
+		.addEmitter(emitterFlame)
+		.addEmitter(emitterSmoke);
+
+	gravity = new ParticleJS.Physics2D.Gravity({y: -0.16});
+
+	turbulence = new ParticleJS.Physics2D.Turbulence({
+		cellsX: 20,
+		cellsY: 16,
+		force: 0.012,
+		forceVariation: 0.5
+	});
+
+	wind = new ParticleJS.Physics2D.Wind();
+
+	air = new ParticleJS.Physics2D.Air({
+		airResistance: 0.02
+	});
+
+	target = new ParticleJS.Physics2D.Target({
+		x: 525 + dx,
+		y: -10,
+		force: 0.33
+	});
+
+	gradOpacityFlame = new ParticleJS.Gradient()
+		.addStop(0,   "rgb(20, 0,0")
+		.addStop(0.5, "rgb(255, 0,0")
+		.addStop(1,   "rgb(  0, 0,0");
+
+	gradOpacitySmoke = new ParticleJS.Gradient()
+		.addStop(0,    "#000")
+		.addStop(0.16, "#f00")
+		.addStop(0.7,  "#700")
+		.addStop(1,    "#000");
+
+	emitterFlame
+		.overLifeBezier("size", 0.6, 1.3, 0.2, 0.02, 300)   // note: only Y points are provided, x = time
+		.overLifeGradient("opacity", gradOpacityFlame, 128)           // use color gradient for opacity over life
+		.addPhysics(turbulence)
+		.addPhysics(wind)
+		.addPhysics(gravity);
+
+	emitterSmoke
+		.reverseRenderOrder(true)
+		.overLifeGradient("opacity", gradOpacitySmoke)
+		.addPhysics(turbulence)
+		.addPhysics(wind)
+		.addPhysics(air)
+		.addPhysics(target);
+
+	emitterGlow
+		.addPhysics(turbulence)
+		.addPhysics(wind);
+
+	// copy over-life arrays
+	//emitterSmoke.opacityOverLife = emitterFlame.opacityOverLife;
+	//emitter2.sizeOverLife = emitter.sizeOverLife;
+
+	function setCanvasSize() {
+		canvas.width = w = 1024;
+		canvas.height = h = 800;
+	}
+
+	window.addEventListener('mousemove', function(e) {
+
+		var dx = e.clientX - mx,
+		    dy = e.clientY - my,
+		    dist = Math.sqrt(dx*dx + dy*dy),
+		    timeNow = performance.now(),
+		    timeDiff = timeNow - time,
+			vel = (dist / timeDiff) / 350,
+			angle = (e.clientX > mx) ? 0 : 180;
+
+		time = timeNow;
+		mx = e.clientX;
+		my = e.clientY;
+
+		if (vel > wind.force())
+			wind.angleAndForce(angle, vel);
+
+	}, false);
+
+	document.getElementById('state').addEventListener('click', function() {
+
+		if (state) {
+			this.src = 'gfx/play.png';
+			emitterGlow.birthRate(0);
+			emitterGlow.globalForce(0.2);
+			emitterFlame.birthRate(0);
+			emitterSmoke.birthRate(brate2);
+			turbulence.force(0.16);
+
+			canvas.className = "grey";
+			document.getElementById('header').className = 'textOffH';
+			document.getElementById('sub').className = 'textOffS';
+			document.getElementById('link').className = 'linkOff';
+		}
+		else {
+			this.src = 'gfx/pause.png';
+			emitterGlow.birthRate(4);
+			emitterGlow.globalForce(1);
+			emitterFlame.birthRate(brate);
+			emitterSmoke.birthRate(0);
+			turbulence.force(0.012);
+
+			canvas.className = "dark";
+			document.getElementById('header').className = 'textOnH';
+			document.getElementById('sub').className = 'textOnS';
+			document.getElementById('link').className = 'linkOn';
+		}
+
+		state = !state;
+
+	}, false);
+
+	imgCandle.onload = imgGlow.onload = imgDark.onload = loader;
+
+	imgCandle.src = "gfx/candlelight.png";
+	imgDark.src = "gfx/candlelight_dark.png";
+	imgGlow.src = "gfx/glow.png";
+
+	function loader() {
+		imgCnt--;
+		if (!imgCnt) {
+			canvas.className = "dark";
+			document.getElementById('header').className = 'textOnH';
+			document.getElementById('sub').className = 'textOnS';
+			document.getElementById('link').className = 'linkOn';
+			loop();
+		}
+	}
+
+	function loop() {
+
+		var wf = wind.force(),
+			br;
+
+		if (wf > 0) {
+			wf -= 0.02;
+			wf = Math.max(0, wf);
+			wind.force(wf);
+		}
+
+		ctx.clearRect(0, 0, w, h);
+
+		if (state && opacity < 1) opacity += 0.012;
+		else if (!state && opacity > 0) opacity -= 0.015;
+
+		opacity = Math.max(0, Math.min(1, opacity));
+
+		//ctx.globalAlpha = opacity;
+		//ctx.drawImage(imgGlow, (w - 200) * 0.5 + dx, 160, 200, 430);
+
+		scene.render();
+
+		ctx.globalAlpha = state ? 1 : opacity;
+		ctx.drawImage(imgCandle, (w - imgCandle.width) * 0.5 + dx, h - 300, imgCandle.width, imgCandle.height);
+
+		if (!state && opacity > 0) {
+			ctx.globalAlpha = 1 - opacity;
+			ctx.drawImage(imgDark, (w - imgCandle.width) * 0.5 + dx, h - 300, imgCandle.width, imgCandle.height);
+		}
+		else if (!state) {
+			ctx.globalAlpha = 1;
+			br = emitterSmoke.birthRate();
+			if (br > 0) br--;
+			emitterSmoke.birthRate(br);
+			ctx.drawImage(imgDark, (w - imgCandle.width) * 0.5 + dx, h - 300, imgCandle.width, imgCandle.height);
+		}
+
+		requestAnimationFrame(loop);
+	}
+
+</script>
+</body>
+</html>

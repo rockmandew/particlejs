@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="author" content="(C) Epistemex">
+
+	<title>ParticleJS - Fireworks demo</title>
+
+	<link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz' rel='stylesheet' type='text/css'>
+
+	<!-- Image source: http://all-free-download.com/free-photos/manhattan_205051.html -->
+
+	<style>
+		html, body {
+			padding:0;
+			margin:0;
+			overflow:hidden;
+			background:black url(http://i.imgur.com/9JT7dOj.jpg);
+			/*background:black url(http://i.imgur.com/QwZaE5j.jpg);*/
+			background-size: cover;
+			}
+		#canvas {
+			position:absolute;
+			left:0;
+			top:0;
+			}
+		.header {
+			position: absolute;
+			left:75px;
+			top:110px;
+			font:64px 'Yanone Kaffeesatz', sans-serif;
+			color:rgba(50, 50, 90, 1);
+			}
+		.sub {
+			position: absolute;
+			left:75px;
+			top:250px;
+			font:24px 'Yanone Kaffeesatz', sans-serif;
+			color:rgba(50, 50, 90, 1);
+			}
+		a, a:active {color:#557;}
+		a:hover {color:#c70;}
+	</style>
+</head>
+<body>
+
+	<canvas id="canvas"></canvas>
+
+	<p class="header">
+		ParticleJS fireworks demo
+	</p>
+
+	<p class="sub">
+		ParticleJS is dual licensed. Download from <a href="https://github.com/epistemex/particleJS/" target="_blank">GitHub</a>
+	</p>
+
+
+<script src="../particle.min.js"></script>
+<script>
+
+	var canvas = document.getElementById('canvas'),
+
+		scene,
+	    emitter,
+	    shader,
+	    gradient1,
+
+	    emitter2,
+	    shader2,
+	    gradient2,
+
+	    gravity,
+	    turbulence,
+		wind;
+
+	setCanvasSize();
+
+	// create scene
+	scene = new ParticleJS.Scene({
+		width: canvas.width,
+		height: canvas.height
+	});
+
+	gradient1 = new ParticleJS.Gradient()
+		.addStop(0   , 'rgb(255, 255, 255)')
+		.addStop(0.3 , 'rgb(255, 255, 255)')
+		.addStop(1   , 'rgb(255, 0, 0)');
+
+	gradient2 = new ParticleJS.Gradient()
+		.addStop(0   , 'rgb(255, 255, 255)')
+		.addStop(0.3 , 'rgb(255, 255, 255)')
+		.addStop(0.5 , 'rgb(0, 255, 0)')
+		.addStop(1   , 'rgb(0, 127, 255)');
+
+	shader = new ParticleJS.Shader2D.Canvas({
+		canvas      : canvas,
+		gradient    : gradient1,
+		randomColor : true,
+		clearOpacity: 0.2,
+		keepAlpha   : true
+	});
+
+	shader2 = new ParticleJS.Shader2D.Canvas({
+		canvas     : canvas,
+		gradient   : gradient2,
+		randomColor: true
+	});
+
+	emitter = new ParticleJS.Emitter2D({
+		type          : 'point',
+		x             : 400,
+		y             : 200,
+		birthRate     : 0,
+		velocity      : 300,
+		randomVelocity: 0.33,
+		life          : 2.8,
+		size          : 4,
+		randomSize    : 0.7,
+		blur          : 0.1,
+		randomOpacity : 0.33,
+		shader        : shader,     // use this shader (mandatory)
+		preRender     : true,       // call pre-render (clears canvas)
+		maxParticles  : 2500        // max number rendered at any time (def. 32000).
+	});
+
+	emitter2 = new ParticleJS.Emitter2D({
+		type          : 'point',
+		x             : 700,
+		y             : 300,
+		birthRate     : 0,
+		velocity      : 250,
+		randomVelocity: 0.25,
+		life          : 2.9,
+		size          : 3,
+		randomSize    : 0.4,
+		blur          : 0.2,
+		randomOpacity : 0.33,
+		shader        : shader2,     // use this shader (mandatory)
+		preRender     : false,       // call pre-render (clears canvas)
+		maxParticles  : 2500        // max number rendered at any time (def. 32000).
+	});
+
+	// add emitter to scene
+	scene.addEmitter(emitter);
+	scene.addEmitter(emitter2);
+
+	emitter.sizeOverLife = new Float32Array([1, 1, 1, 0.75, 0.75, 0.75, 0.5, 0.5, 0.5]);
+	emitter.opacityOverLife = new Float32Array([1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0.5, 1, 0, 1, 0.5, 1, 0, 1, 0.5, 1, 0, 1, 1, 1, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.25, 0.01]);
+
+	emitter2.sizeOverLife = new Float32Array([0.5, 0.33, 0.5, 0.75, 1, 1, 0.75, 0.75, 0.75, 0.5, 0.5, 0.5]);
+	emitter2.opacityOverLife = new Float32Array([0.3, 0.8, 0.5, 0.5, 0.7, 0.2, 1, 0.2, 1, 0, 1, 0, 1, 0, 1, 0.5, 1, 0, 1, 0.5, 1, 0, 1, 0.5, 1, 0, 1, 1, 1, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.25, 0.01]);
+
+	// create the physics models we want to use
+	gravity = new ParticleJS.Physics2D.Gravity({y: 0.025});
+
+	turbulence = new ParticleJS.Physics2D.Turbulence({
+		cellsX: 32,
+		cellsY: 25,
+		force: 0.012
+	});
+
+	wind = new ParticleJS.Physics2D.Wind({
+		angle: 320,
+		force: 0.015
+	});
+
+	// add the physics models in the order we want
+	emitter.addPhysics(turbulence);
+	emitter.addPhysics(gravity);
+	emitter.addPhysics(wind);
+
+	emitter2.addPhysics(turbulence);
+	emitter2.addPhysics(gravity);
+	emitter2.addPhysics(wind);
+
+	turbulence.forceVariation(0.5);
+
+	emitter.globalForce(0.25);
+	emitter2.globalForce(0.15);
+
+	//window.onresize = setCanvasSize;
+
+	function setCanvasSize() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+
+		if (emitter) {
+
+		}
+	}
+
+	(function loop() {
+		scene.render();
+		requestAnimationFrame(loop);
+	})();
+
+	fireworks();
+	setTimeout(fireworks2, getRnd(200, 500));
+
+	function fireworks() {
+		emitter.birthRate(140);
+		setTimeout(function() {
+			emitter.position(canvas.width * Math.random(), getRnd(canvas.height * 0.33, canvas.height * 0.55));
+			emitter.birthRate(0);
+			setTimeout(fireworks, getRnd(250, 3200));
+		}, getRnd(800, 1000));
+	}
+
+	function fireworks2() {
+		emitter2.birthRate(140);
+		setTimeout(function() {
+			emitter2.position(canvas.width * Math.random(), getRnd(canvas.height * 0.33, canvas.height * 0.55));
+			emitter2.birthRate(0);
+			setTimeout(fireworks2, getRnd(2000, 4000));
+		}, getRnd(700, 1000));
+	}
+
+	function getRnd(min, max) {
+		return (max - min) * Math.random() + min;
+	}
+
+</script>
+</body>
+</html>

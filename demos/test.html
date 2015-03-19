@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>ParticleJS</title>
+	<link rel="stylesheet" type="text/css" href="css/test.css" />
+</head>
+<body>
+
+	<div id="container">
+
+		<div id="main">
+			<div class="main">
+				<h1>ParticleJS</h1>
+				<canvas id="canvas" width="512" height="256"></canvas>
+			</div>
+
+			<div class="options">
+				<div>
+					<label for="rngLife">Life (s)</label>
+					<input id="rngLife" type="range" min="0" max="200" value="28">
+					<output id="outLife">2.8</output>
+				</div>
+
+				<div>
+					<label for="rngRate">Birth-rate</label>
+					<input id="rngRate" type="range" min="1" max="2000" value="200">
+					<output id="outRate">200</output>
+				</div>
+
+				<div>
+					<label for="rngVel">Velocity</label>
+					<input id="rngVel" type="range" min="0" max="1000" value="300">
+					<output id="outVel">300</output>
+				</div>
+
+				<div>
+					<label for="rngSize">Size</label>
+					<input id="rngSize" type="range" min="1" max="200" value="100">
+					<output id="outSize">100</output>
+				</div>
+
+				<div>
+					<label for="rngFeather">Blur</label>
+					<input id="rngFeather" type="range" min="0" max="100" value="50">
+					<output id="outFeather">0.50</output>
+				</div>
+
+				<div>
+					<label for="rngOpacity">Opacity</label>
+					<input id="rngOpacity" type="range" min="0" max="255" value="6">
+					<output id="outOpacity">0.02</output>
+				</div>
+
+				<div>
+					<label for="rngSpread">Spread angle</label>
+					<input id="rngSpread" type="range" min="0" max="360" value="360">
+					<output id="outSpread">360</output>
+				</div>
+
+				<div>
+					<label for="rngSpreadA">Spread offset</label>
+					<input id="rngSpreadA" type="range" min="0" max="359" value="0">
+					<output id="outSpreadA">0</output>
+				</div>
+
+				<hr>
+
+				<div>
+					<label for="rngWindA">Wind angle</label>
+					<input id="rngWindA" type="range" min="0" max="360" value="0">
+					<output id="outWindA">0</output>
+				</div>
+
+				<div>
+					<label for="rngWindF">Wind force</label>
+					<input id="rngWindF" type="range" min="0" max="100" value="0">
+					<output id="outWindF">0.00</output>
+				</div>
+
+				<div>
+					<label for="rngGravY">Gravity Y</label>
+					<input id="rngGravY" type="range" min="-20" max="20" value="0">
+					<output id="outGravY">0</output>
+				</div>
+
+				<div>
+					<label for="rngAir">Air resistance</label>
+					<input id="rngAir" type="range" min="0" max="10" value="0">
+					<output id="outAir">0</output>
+				</div>
+
+				<div>
+					<label for="rngMagnet">Magnet force</label>
+					<input id="rngMagnet" type="range" min="-20" max="20" value="0">
+					<output id="outMagnet">0</output>
+				</div>
+
+				<div>
+					<label for="rngMagnetR">Magnet radius</label>
+					<input id="rngMagnetR" type="range" min="1" max="400" value="100">
+					<output id="outMagnetR">100</output>
+				</div>
+
+				<div>
+					<label for="rngTurb">Turbulence</label>
+					<input id="rngTurb" type="range" min="0" max="100" value="0">
+					<output id="outTurb">0</output>
+				</div>
+
+				<hr>
+
+				<div>
+					<label for="rngVortex1">Vortex 1</label>
+					<input id="rngVortex1" type="range" min="0" max="100" value="0">
+					<output id="outVortex1">0</output>
+				</div>
+
+				<div>
+					<label for="rngVortex2">Vortex 2</label>
+					<input id="rngVortex2" type="range" min="0" max="100" value="0">
+					<output id="outVortex2">0</output>
+				</div>
+
+				<hr>
+
+				<div>
+					<label for="rngGlobal">Global force</label>
+					<input id="rngGlobal" type="range" min="0" max="200" value="100">
+					<output id="outGlobal">1.00</output>
+				</div>
+
+				<hr>
+
+				<div>
+					<input id="chkShoot" type="checkbox">
+					<label for="chkShoot">Click to spray</label>
+				</div>
+
+				<div>
+					<input id="chkLock" type="checkbox">
+					<label for="chkLock">Click to lock</label>
+				</div>
+
+				<div>
+					<input id="chkReverse" type="checkbox">
+					<label for="chkReverse" style="width:160px">Reverse Z-order</label>
+				</div>
+
+				<div>
+					<input id="chkMap" type="checkbox">
+					<label for="chkMap" style="width:160px">Show turbulence map</label>
+				</div>
+
+				<div>
+					<input id="chkRefl" type="checkbox">
+					<label for="chkRefl" style="width:160px">Use reflector</label>
+				</div>
+
+				<div>
+					<input id="chkTarget" type="checkbox">
+					<label for="chkTarget" style="width:160px">Use target (mouse)</label>
+				</div>
+
+			</div>
+		</div>
+
+	</div> 	<!-- container -->
+
+<script src="../src/core.js"></script>
+<script src="../src/tools.getmapimage.js"></script>
+<script src="../src/tools.createhitmap.js"></script>
+<script src="../src/tools.mapobject.js"></script>
+<script src="../src/scene.js"></script>
+<script src="../src/emitter2D.js"></script>
+<script src="../src/particle2D.js"></script>
+<script src="../src/physics2D.air.js"></script>
+<script src="../src/physics2D.gravity.js"></script>
+<script src="../src/physics2D.waves.js"></script>
+<script src="../src/physics2D.wind.js"></script>
+<script src="../src/physics2D.turbulence.js"></script>
+<script src="../src/physics2D.vortex.js"></script>
+<script src="../src/physics2D.target.js"></script>
+<script src="../src/physics2D.path.js"></script>
+<script src="../src/physics2D.collector.js"></script>
+<script src="../src/physics2D.reflector.js"></script>
+<script src="../src/physics2D.nozzle.js"></script>
+<script src="../src/physics2D.accelerator.js"></script>
+<script src="../src/shader2D.canvas.js"></script>
+<script src="../src/shader2D.canvassprites.js"></script>
+<script src="../src/shader2D.preview.js"></script>
+<script src="../src/gradient.js"></script>
+<script src="../src/vector.js"></script>
+
+<script>
+
+	// create scene
+	var scene,
+	    emitter,
+	    shader,
+	    gradient,
+
+	    air,
+	    gravity,
+	    wind,
+	    path,
+	    magnet,
+	    turbulence,
+	    vortex1,
+	    vortex2,
+	    target,
+	    reflector,
+	    nozzle,
+	    accel,
+
+	    gradOpacity,    // opacity over life gradient
+	    gradFeather,    // blur over life gradient
+	    gradSize,       // size over life gradient
+	    gradLinear,
+
+		canvas = getEl('canvas'),
+		tmap = null,
+
+		width = 800,
+		height = 560,
+
+		cnt = 0,
+		toggle = false,
+		mx = 400,
+		my = 200,
+		shoot = false,
+		lock = false,
+		isDown = false,
+		useTarget = false,
+		brate = 200,
+
+		ctx = canvas.getContext('2d'),
+		showTurbMap = false,
+		vmap1 = null,
+		vmap2 = null;
+
+	// create scene
+	scene = new ParticleJS.Scene({
+		width: width,
+		height: height,
+		frameBound: false,
+		FPS: 60                 // only if frame bound
+	});
+
+	// create gradient for emitter
+	gradient = new ParticleJS.Gradient()
+		.addStop(0   , 'rgb(248, 252, 238)')
+		.addStop(0.16, 'rgb(239, 230, 120)')
+		.addStop(0.20, 'rgb(235, 123, 37)')
+		.addStop(0.22, 'rgb(196, 54, 0)')
+		.addStop(0.28, 'rgb(78, 21, 2)')
+		.addStop(0.50, '#333')
+		.addStop(1   , '#111');
+
+	// create canvas renderer instance
+	/*shader = new ParticleJS.Shader2D.Canvas({
+		canvas      : canvas,
+		clearOpacity: 1,
+		spriteSize  : 32,
+		gradient    : gradient,     // optional gradient (overrides color below)
+		randomColor : false,
+		r           : 150,          // base color (ignored if gradient is provided, except if life=0)
+		g           : 190,
+		b           : 250
+	});*/
+
+	// create canvas renderer instance
+	shader = new ParticleJS.Shader2D.CanvasSprites({
+		canvas      : canvas,
+		url         : "gfx/testsheet2.png",
+		cellsX      : 5,
+		cellsY      : 5,
+		useScan     : true
+	});
+
+	// create an emitter for scene using above renderer
+	emitter = new ParticleJS.Emitter2D({
+		birthRate     : brate,      // particles per frame
+		velocity      : 300,        // speed each particle is thrown at its direction
+		randomVelocity: 0.6,        // random variation of full velocity
+		life          : 2.8,        // life in seconds
+		randomLife    : 0.5,
+		spreadAngle   : 360,        // angle of spread
+		spreadOffset  : 0,          // if spread is not 360, angle offset to spread from
+		size          : 100,        // global (max) diameter in pixels of each particle
+		randomSize    : 0.6,        // size variations
+		blur          : 0.5,        // blur (normalized)
+		randomBlur    : 0,
+		opacity       : 0.16,       // global opacity, overridden by variation and ramp (opacity over life)
+		randomOpacity : 0,
+		rotation      : 90,
+		randomRotation: 0.5,
+
+		shader        : shader,     // use this shader (mandatory)
+		preRender     : true,       // call pre-render (clears canvas)
+		postRender    : true,
+		//maxParticles  : 1000,       // max number rendered at any time (def. 8000).
+
+		type          : 'point',
+		x             : 400,        // emitter center (start point for line, center for box, upper-left corner for grid)
+		y             : 200,
+		endX          : 700,        // end point if type = line
+		endY          : 400,
+		boxRadius     : 350,        // box radius if type = box
+		gridWidth     : 400,        // size of grid if type = grid
+		gridHeight    : 300,
+		cellsX        : 4,          // number of cells if type = grid,
+		cellsY        : 4,
+
+		callback      : checkParticle   // callback per particle
+	});
+
+	// add emitter to scene
+	scene.addEmitter(emitter);
+
+	// create the physics models we want to use
+	air = new ParticleJS.Physics2D.Air();
+	gravity = new ParticleJS.Physics2D.Gravity();
+	wind = new ParticleJS.Physics2D.Wind();
+
+	path = new ParticleJS.Physics2D.Path({
+		influence: 0.03,
+		force: 1,
+		isClosed: true,
+		tension: 0.5,
+		path: [50,50, 200,20, 400,50, 500,200, 400,400, 200,450, 50,400, 25,200]
+	});
+
+	accel = new ParticleJS.Physics2D.Accelerator({
+		force: 0.1
+	});
+
+	nozzle = new ParticleJS.Physics2D.Nozzle({
+		spreadAngle: 45,
+		spreadOffset: 340,
+		radius: 200,
+		x: 400,
+		y: 300,
+		force: 0.5
+	});
+
+	vortex1 = new ParticleJS.Physics2D.Vortex({
+		x: 300,
+		y: 200,
+		force: 0,
+		suction: 0.75
+	});
+
+	vortex2 = new ParticleJS.Physics2D.Vortex({
+		x: 600,
+		y: 320,
+		radius: 120,
+		force: 0,
+		suction: 0.75
+	});
+
+	magnet = new ParticleJS.Physics2D.Vortex({
+		x: 400,
+		y: 300,
+		suction: 1,
+		force: 0
+	}); // set max suction and it becomes a magnet
+
+	turbulence  = new ParticleJS.Physics2D.Turbulence({
+		cellsX: 32,
+		cellsY: 24,
+		force: 0
+	});
+
+	reflector   = new ParticleJS.Physics2D.Reflector({
+		x1: 200,
+		y1: 350,
+		x2: 500,
+		y2: 450,
+		radius: 10,
+		absorption: 0.15,
+		isActive: false
+	});
+
+	target = new ParticleJS.Physics2D.Target();
+
+	// gradient for over-life linear (rotation)
+	gradLinear = new ParticleJS.Gradient()
+		.addStop(0, '#000')
+		.addStop(1, '#f00');
+
+	// gradient for over-life opacity
+	gradOpacity = new ParticleJS.Gradient()
+		.addStop(0  , '#f00')
+		.addStop(0.5, '#f00')
+		.addStop(1  , '#000');
+
+	// gradient for over-life opacity
+	gradSize = new ParticleJS.Gradient()
+		.addStop(0  , '#0c0000')
+		.addStop(0.3, '#ff0000')
+		.addStop(0.8, '#ff0000')
+		.addStop(1  , '#770000');
+
+	// add the physics models in the order we want
+	emitter
+		.overLifeGradient("opacity", gradOpacity)
+		.overLifeGradient("size", gradSize)
+		.overLifeGradient("rotation", gradLinear)
+		//.addPhysics(path)
+		.addPhysics(turbulence)
+		.addPhysics(vortex1)
+		.addPhysics(vortex2)
+		.addPhysics(magnet)
+		.addPhysics(air)
+		.addPhysics(gravity)
+		.addPhysics(wind)
+		.addPhysics(reflector)
+		.addPhysics(target);
+		//.addPhysics(accel);
+		//.addPhysics(nozzle);
+
+	function getXY(e) {
+		var r = canvas.getBoundingClientRect();
+		return {
+			x: e.clientX - r.left,
+			y: e.clientY - r.top
+		}
+	}
+
+	function checkParticle(e) {
+		var p = e.particle;
+		if (p.x < 0 || p.x >= width || p.y < 0 || p.y > height) p.kill();
+	}
+
+	/*
+		Options
+	*/
+
+	chgEv('rngLife', function() {
+		var v = this.value * 0.1;
+		emitter.life(v);
+		getEl('outLife').innerHTML = v.toFixed(1);
+	});
+
+	chgEv('rngRate', function() {
+		brate = +this.value;
+		if (!shoot) emitter.birthRate(brate);
+		getEl('outRate').innerHTML = brate+'';
+	});
+
+	chgEv('rngVel', function() {
+		var v = +this.value;
+		emitter.velocity(v);
+		getEl('outVel').innerHTML = v+'';
+	});
+
+	chgEv('rngSize', function() {
+		var v = +this.value;
+		emitter.size(v);
+		getEl('outSize').innerHTML = v+'';
+	});
+
+	chgEv('rngOpacity', function() {
+		var v = this.value / 255;
+		emitter.opacity(v);
+		getEl('outOpacity').innerHTML = v.toFixed(2);
+	});
+
+	chgEv('rngFeather', function() {
+		var v = this.value * 0.01;
+		emitter.blur(v);
+		getEl('outFeather').innerHTML = v.toFixed(2);
+	});
+
+	chgEv('rngSpread', function() {
+		var v = +this.value;
+		emitter.spreadAngle(v);
+		getEl('outSpread').innerHTML = v+'';
+	});
+
+	chgEv('rngSpreadA', function() {
+		var v = +this.value;
+		emitter.spreadOffset(v);
+		getEl('outSpreadA').innerHTML = v+'';
+	});
+
+	chgEv('rngWindA', function() {
+		var v = +this.value;
+		wind.angle(v);
+		getEl('outWindA').innerHTML = v+'';
+	});
+
+	chgEv('rngWindF', function() {
+		var v = this.value * 0.01;
+		wind.force(v);
+		getEl('outWindF').innerHTML = v.toFixed(2);
+	});
+
+	chgEv('rngGravY', function() {
+		var v = this.value * 0.01;
+		gravity.gravityY(v);
+		getEl('outGravY').innerHTML = v.toFixed(2);
+	});
+
+	chgEv('rngAir', function() {
+		var v = this.value * 0.01;
+		air.airResistance(v);
+		getEl('outAir').innerHTML = v.toFixed(2);
+	});
+
+	chgEv('rngMagnet', function() {
+		var v = this.value * 0.1;
+		magnet.force(v);
+		getEl('outMagnet').innerHTML = v.toFixed(1);
+	});
+
+	chgEv('rngMagnetR', function() {
+		var v = +this.value;
+		magnet.radius(+v);
+		getEl('outMagnetR').innerHTML = v+'';
+	});
+
+	chgEv('rngTurb', function() {
+		var v = this.value * 0.01;
+		turbulence.force(+v);
+		getEl('outTurb').innerHTML = v.toFixed(2);
+	});
+
+	chgEv('rngVortex1', function() {
+		var v = this.value * 0.01;
+		vortex1.force(+v);
+		getEl('outVortex1').innerHTML = v.toFixed(2);
+	});
+
+	chgEv('rngVortex2', function() {
+		var v = this.value * 0.01;
+		vortex2.force(+v);
+		getEl('outVortex2').innerHTML = v.toFixed(2);
+	});
+
+	chgEv('rngGlobal', function() {
+		var v = this.value * 0.01;
+		emitter.globalForce(v);
+		getEl('outGlobal').innerHTML = v.toFixed(2);
+	});
+
+	chgEv('chkLock', function() {
+		lock = !!this.checked;
+	});
+
+	chgEv('chkReverse', function() {
+		emitter.reverseRenderOrder(!!this.checked);
+	});
+
+	chgEv('chkMap', function() {
+		showTurbMap = !!this.checked;
+		emitter.preRender(!showTurbMap);
+	});
+
+	chgEv('chkRefl', function() {
+		reflector.isActive(!!this.checked);
+	});
+
+	chgEv('chkTarget', function() {
+		useTarget = !!this.checked;
+		target.force(useTarget ? 0.1 : 0);
+	});
+
+	// allow "shooting" (mouse down = birth rate, up = none)
+	chgEv('chkShoot', function() {
+
+		shoot = !!this.checked;
+
+		if (shoot) {
+			emitter.birthRate(0);
+		}
+		else {
+			emitter.birthRate(brate);
+		}
+	});
+
+	// for shooting
+	canvas.addEventListener('mousedown', function(e) {
+		isDown = true;
+		var p = getXY(e);
+
+		if (useTarget) {
+			target.position(p.x, p.y);
+		}
+		else {
+			mx = p.x;
+			my = p.y;
+			emitter.position(mx, my);
+		}
+
+		emitter.birthRate(brate);
+
+	}, false);
+
+	window.addEventListener('mouseup', function() {
+		if (shoot) emitter.birthRate(0);
+		isDown = false;
+	}, false);
+
+	// move emitter with mouse position
+	window.onmousemove = function(e) {
+		if (!lock || isDown || useTarget) {
+			var p = getXY(e);
+
+			if (useTarget) {
+				target.position(p.x, p.y);
+			}
+			else {
+				mx = p.x;
+				my = p.y;
+			}
+		}
+	};
+
+	// main loop
+	(function loop() {
+
+		if (showTurbMap) {
+			if (cnt % turbulence.sliceFrames() === 0) {
+
+				if (!vmap1) vmap1 = vortex1.getMapImage('#c22', '#000');
+				if (!vmap2) vmap2 = vortex2.getMapImage('#c22');
+
+				ctx.drawImage(vmap1, 0, 0);
+				ctx.drawImage(vmap2, 0, 0);
+				ctx.drawImage(turbulence.getMapImage('#22c'), 0, 0);
+			}
+		}
+
+		scene.render();
+
+		emitter.position(mx, my);
+
+		requestAnimationFrame(loop);
+	})();
+
+	function chgEv(id, func) {
+		getEl(id).addEventListener("change", func, false);
+	}
+
+	function getEl(id) {return document.getElementById(id)}
+
+</script>
+</body>
+</html>

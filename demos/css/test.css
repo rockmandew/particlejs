@@ -1,0 +1,46 @@
+body {
+	background:#171718;
+	color:#ccc;
+	font:14px sans-serif;
+	}
+
+h1 {
+	font-weight: 100;
+	font-size:24px;
+	}
+.main {
+	float:left;
+	}
+.options{
+	float:right;
+	width:500px;
+	}
+
+label {
+	display:inline-block;
+	width:100px;
+	}
+output {
+	text-align: right;
+	display:inline-block;
+	width:50px;
+	}
+#canvas {
+	border:1px solid #000;
+	background:#000;
+	cursor: crosshair;
+	}
+button {
+	margin:7px 0;
+	color:#ccc;
+	background:#555;
+	border:1px solid #000;
+	padding:7px 12px;
+	border-radius: 5px;
+	}
+button:hover {
+	background:#950;
+	}
+button:active {
+	background:#a70;
+	}

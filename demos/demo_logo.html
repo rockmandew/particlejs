@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>ParticleJS - demo logo disolve</title>
+
+	<style>
+		html, body {width:100%;height:100%;margin:0;padding:0;overflow:hidden}
+		body {
+			background: -moz-linear-gradient(top,  #590500 0%, #190001 72%, #0a0000 100%); /* FF3.6+ */
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#590500), color-stop(72%,#190001), color-stop(100%,#0a0000)); /* Chrome,Safari4+ */
+			background: -webkit-linear-gradient(top,  #590500 0%,#190001 72%,#0a0000 100%); /* Chrome10+,Safari5.1+ */
+			background: -o-linear-gradient(top,  #590500 0%,#190001 72%,#0a0000 100%); /* Opera 11.10+ */
+			background: -ms-linear-gradient(top,  #590500 0%,#190001 72%,#0a0000 100%); /* IE10+ */
+			background: linear-gradient(to bottom,  #590500 0%,#190001 72%,#0a0000 100%); /* W3C */
+			}
+		#canvas {
+			position:fixed;
+			left:0;
+			top:0;
+			width:100%;
+			height:100%;
+			}
+		.on, .off {
+			position:fixed;
+			right:100px;
+			bottom:120px;
+			font:24px sans-serif;
+			}
+		.off {
+			color:rgba(255,255,255,0);
+			}
+		.on {
+			color:rgba(255,255,255,1);
+			transition:2s color;
+			}
+	</style>
+</head>
+<body>
+
+	<canvas id="canvas" width="1280" height="720"></canvas>
+
+	<a id="github" class="off" href="https://github.com/epistemex/particlejs">Get ParticleJS at GitHub</a>
+
+<script src="../particle.min.js"></script>
+<script>
+
+	var canvas = document.getElementById("canvas"),
+	    ctx = canvas.getContext('2d'),
+	    img = new Image,
+
+	    w = canvas.width,
+	    h = canvas.height,
+
+	    scene,
+	    emitter,
+	    shader,
+	    gradient,
+	    gravity,
+	    turbulence,
+
+	    gradOpacity,
+	    gradSize,
+
+	    scanSteps = 5,
+	    cnt = 0,
+	    done = false,
+
+	    idata,
+	    buffer32,
+	    bx, by, iy,
+	    bw, bh,
+	    len;
+
+	gradient = new ParticleJS.Gradient()
+		.addStop(0   , "#fc0")
+		.addStop(0.12, "#550")
+		.addStop(0.25, "#fff")
+		.addStop(0.5 , "#770")
+		.addStop(0.75, "#fc0")
+		.addStop(0.90, "#960")
+		.addStop(1   , "#fa0");
+
+	scene = new ParticleJS.Scene({
+		width : 1280,
+		height: 720
+	});
+
+	shader = new ParticleJS.Shader2D.Canvas({
+		canvas      : canvas,
+		gradient    : gradient,
+		randomColor : true,
+		sizeCells   : 1,
+		colorCells  : 20,
+		spriteSize  : 10,
+		clearOpacity: 1
+	});
+
+	emitter = new ParticleJS.Emitter2D({
+		type          : "point",
+		x             : -1000,
+		y             : -100,
+		birthRate     : 10,
+		velocity      : 30,
+		randomVelocity: 0.95,
+		spreadAngle   : 60,
+		spreadOffset  : 45,
+		size          : 3,
+		life          : 2.5,
+		opacity       : 0.5,
+		shader        : shader,
+		preRender     : false,
+		maxParticles  : 16000
+	});
+
+	gravity = new ParticleJS.Physics2D.Gravity({
+		y: 0.03
+	});
+
+	turbulence = new ParticleJS.Physics2D.Turbulence({
+		force: 0.02,
+		cellsX: 64,
+		cellsY: 32
+	});
+
+	gradOpacity = new ParticleJS.Gradient()
+			.addStop(0   , "#f00")
+			.addStop(0.75, "#f00")
+			.addStop(1   , "#000");
+
+	gradSize= new ParticleJS.Gradient()
+			.addStop(0  , "#900")
+			.addStop(0.5, "#f00")
+			.addStop(1  , "#f00");
+
+	scene.addEmitter(emitter);
+
+	emitter
+			.overLifeGradient("opacity", gradOpacity, 256)
+			.overLifeGradient("size", gradSize, 128)
+			.addPhysics(gravity)
+			.addPhysics(turbulence);
+
+	img.onload = start;
+	img.src ="gfx/particlejs_gold.png";
+
+	function start() {
+
+		// fade in image
+		var opacity = 0,
+		    x = 80,
+		    y = (h - img.height) * 0.5 - 100,
+		    iw = w - x * 2;
+
+		(function fadeIn() {
+
+			ctx.clearRect(0, 0, w, h);
+			ctx.globalAlpha = 1 - (1 - opacity * opacity * opacity);
+
+			ctx.drawImage(img, x, y|0, iw, img.height);
+
+			y += 0.5;
+
+			if (opacity < 1) {
+				opacity += 0.01;
+				requestAnimationFrame(fadeIn);
+			}
+			else {
+				bx = x|0;
+				by = y|0;
+				bw = (iw+0.5)|0;
+				bh = img.height; //(ih+0.5)|0;
+
+				idata = ctx.getImageData(bx, by, bw, bh);
+				buffer32 = new Uint32Array(idata.data.buffer);
+				len = buffer32.length;
+
+				scene.render(); // set time
+				iy = bh;
+				dissolve();
+			}
+		})();
+	}
+
+
+	function dissolve() {
+
+		ctx.clearRect(0,by-10,w,h);
+
+		if (iy >= 0) {
+			if (iy > 0) {
+				ctx.globalAlpha = 1;
+				ctx.drawImage(img, 0, 0, img.width, iy, bx, by, bw, iy);
+			}
+
+			if (cnt % scanSteps === 0) {
+				scanLine(iy, emitter);
+				iy -= 2;
+			}
+			cnt++;
+		}
+		else {
+			if (!done) {
+				done = true;
+				document.getElementById("github").className = "on";
+				emitter.birthRate(0);
+			}
+		}
+
+		scene.render();
+
+		requestAnimationFrame(dissolve);
+	}
+
+	function scanLine(y, emitter) {
+
+		var s = y * bw,
+		    e = s + bw,
+		    step = 3;
+
+		for(; s < e; s += step) {
+
+			var _y = (s / bw)| 0,
+			    _x = s - (_y * bw);
+
+			if (buffer32[s]) {
+				emitter.position(_x+bx, _y+by);
+				emitter.generateParticles(performance.now(), 2);
+
+			}
+
+		}
+	}
+
+</script>
+</body>
+</html>

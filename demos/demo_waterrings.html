@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="author" content="(C) Epistemex">
+
+	<title>ParticleJS - Water rings demo</title>
+
+	<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
+
+	<style>
+		html, body {
+			padding:0;
+			margin:0;
+			overflow:hidden;
+			}
+		body {
+			background:black;
+			}
+		canvas {
+			position:fixed;
+			left:0;
+			top:0;
+			width:100%;
+			height:100%;
+			}
+		.header {
+			position: absolute;
+			left:75px;
+			top:110px;
+			font:64px Merriweather,sans-serif;
+			color:rgb(255, 140, 0);
+			}
+		.sub {
+			position: absolute;
+			left:75px;
+			top:250px;
+			font:22px Merriweather, sans-serif;
+			color:rgb(200, 200, 200);
+			z-index:1000;
+			}
+		a, a:active {color:#fff;}
+		a:hover {color:#fc0;}
+	</style>
+</head>
+<body>
+
+	<canvas id="canvas"></canvas>
+
+	<p class="header">
+		ParticleJS water rings
+	</p>
+
+	<p class="sub">
+		ParticleJS is dual licensed. Download from <a href="https://github.com/epistemex/particleJS/" target="_blank">GitHub</a>
+	</p>
+
+<script src="../particle.min.js"></script>
+<script>
+
+	var canvas = document.getElementById('canvas'),
+
+		scene,
+	    emitter,
+	    shader,
+	    gradient,
+	    gradOpacity,
+
+	    frames = 10,
+	    dropFrames = 9,
+	    samePos = 3,
+	    pos = getPos(),
+		isIn = false;
+
+	setCanvasSize();
+
+	// create scene
+	scene = new ParticleJS.Scene({
+		width: canvas.width,
+		height: canvas.height
+	});
+
+	gradient = new ParticleJS.Gradient()
+			.addStop(0,    "#00d")
+			.addStop(0.05, "#009")
+			.addStop(0.10, "#00d")
+			.addStop(0.15, "#009")
+			.addStop(0.20, "#00d")
+			.addStop(0.25, "#009")
+			.addStop(0.30, "#00d")
+			.addStop(0.35, "#009")
+			.addStop(0.40, "#00d")
+			.addStop(0.45, "#009")
+			.addStop(0.50, "#00d")
+			.addStop(0.55, "#009")
+			.addStop(0.60, "#00d")
+			.addStop(0.65, "#009")
+			.addStop(0.70, "#00d")
+			.addStop(0.75, "#009")
+			.addStop(0.80, "#00d")
+			.addStop(0.85, "#009")
+			.addStop(0.90, "#00d")
+			.addStop(0.95, "#009")
+			.addStop(1,    "#00d");
+
+	shader = new ParticleJS.Shader2D.Canvas({
+		canvas      : canvas,
+		gradient    : gradient,
+		clearOpacity: 0.5
+	});
+
+	gradOpacity = new ParticleJS.Gradient()
+		.addStop(0, "#100")
+		.addStop(1, "#000");
+
+	emitter = new ParticleJS.Emitter2D({
+		type          : 'point',
+		x             : 0,
+		y             : 0,
+		birthRate     : 0,
+		velocity      : 150,
+		randomVelocity: 0,
+		life          : 3.6,
+		spreadAngle   : 360,
+		size          : 32,
+		blur          : 0.8,
+		opacity       : 0.3,
+		shader        : shader,
+		preRender     : true
+	});
+
+	scene.addEmitter(emitter);
+
+	emitter.overLifeGradient("opacity", gradOpacity);
+
+	function setCanvasSize() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
+
+	function getPos() {
+		return {
+			x: Math.random()*(canvas.width-100)+50,
+			y: Math.random()*(canvas.height-100)+50
+		}
+	}
+
+	(function loop() {
+
+		scene.render();
+
+		if (frames > 0) frames--;
+		else {
+			if (isIn) {
+				frames++;
+				if (frames === 0) {
+					isIn = false;
+					emitter.birthRate(0);
+					frames = ((Math.random()*25)|0)+12;
+				}
+			}
+			else {
+				isIn = true;
+				frames = -dropFrames;
+				emitter.position(pos.x, pos.y)
+						.birthRate(400 * samePos);
+				samePos--;
+				if (samePos===0) {
+					samePos = Math.random() > 0.5 ? 2 : 3;
+					pos = getPos();
+				}
+			}
+		}
+		requestAnimationFrame(loop);
+	})();
+
+</script>
+</body>
+</html>

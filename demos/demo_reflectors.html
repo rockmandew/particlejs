@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>ParticleJS - Collector demo</title>
+
+	<style>
+		html, body {margin:0;width:100%;height:100%;overflow:hidden}
+		body {background:#222; font:14px sans-serif;color:orange}
+		#container {width:802px;margin:0 auto}
+		#screen {position:relative; height:530px}
+		canvas {position:absolute;left:0;top:0;border:1px solid #000}
+		#canvas {background:#400}
+		#logo {float:right}
+	</style>
+</head>
+<body>
+
+	<div id="container">
+		<h1>ParticleJS - Reflectors (physics) demo</h1>
+
+		<div id="screen">
+			<canvas id="canvas" width="800" height="500"></canvas>
+			<canvas id="canvasFixed" width="800" height="500"></canvas>
+		</div>
+
+		<div id="logo">
+			<a href="https://github.com/epistemex">
+				<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAAAWCAMAAAA2NMTdAAAAhFBMVEUAAAA4SZ44SZ44SZ6AZEw3S584SZ44SZ44SZ44SZ44SZ44SZ4jerSWRV43fo/ULyqxszv1fzFovUX+vzI4SZ6weEY4SZ44SZ44SZ43fo+WRV71fzGxszs4SZ7BkjY3fo9ovUX+vzI4SZ4jerTULypovUX+vzI3fo+WRV6xszv1fzGAZEzOcUV7AAAAInRSTlMAEJ/PQDDvQIC/YCB/QEB/QECAgI8QcK/fgICAgFAwEHBw8/jPYwAAAcJJREFUSMftk9tS4zAMhuW4diyHhQVy2kPKrva8vP/7Ef21YwJTOr0hXPBNZyxZPnwdK/QbfL/+D66vfgJ6VZLE7XYSE7fbS7Tebi8RRt5egtwb6AnlFuy7L6DbXwGUTJ0xJWxmdaf+AcQGyzKP180ZLeiEW4ql1swJ0UfQdTtA3Qdw2CiZGmGKiZmoErHM7EViLYUSBxJhygSdYMlQFAsL5/00D//A19092H3+C5KEWq5DJy0xYwBm5HRLWhcoI35JHGIuUmrRwMHR+RIkrIeVvG2PSgQWR8D6mCWKhXdwOCnR1wceS1R6WCO8tMhaosrdMUs03h5EpVc7tqnmkgUcTkpk9PCgtKP0+EdBEj6uJTL1LEG9tJgcCBICUq9oOuh4xnNYBkNPkKDU65P1x5+DaJCazOiNFrCvUEk1/86SKCEkHLvyDi9IGD+aQSZ6JmGsCsDi6Cd6QkLbJSXDixI0CW7LEmuHxeIG7O8+gTt3AcobgPhUgqwwsDKsJca8RSVwzWiyhOdEdsgWv8DN5R9wefEDkNKETN2EhhZiJDIxlSKBOjzdQgHeJjgU5iyGzBR6SvTBHZV4Td4l3qTEt00lHgBjlGG7Su2augAAAABJRU5ErkJggg==">
+			</a>
+		</div>
+
+	</div> 	<!-- container -->
+
+<script src="../particle.min.js"></script>
+
+<script>
+
+	var canvas      = document.getElementById('canvas'),
+	    canvasFixed = document.getElementById('canvasFixed'),
+	    ctx         = canvas.getContext('2d'),
+	    ctxf        = canvasFixed.getContext('2d'),
+
+	    w           = canvas.width,
+	    h           = canvas.height,
+
+	    scene,
+	    emitter,
+	    shader,
+	    gradient,
+
+	    gravity,
+	    turbulence,
+	    reflectors  = [],
+	    refl,
+
+	    gradOpacity,
+
+	    lines       = [
+		    {x1: 60, y1: 110, x2: 240, y2: 250, abs: 0},
+		    {x1: 300, y1: 400, x2: 400, y2: 300, abs: 0.5},
+		    {x1: 500, y1: 300, x2: 750, y2: 200, abs: 0.3},
+		    {x1: 450, y1: 450, x2: 570, y2: 450, abs: -0.4}
+	    ];
+
+	scene = new ParticleJS.Scene({
+		width: w,
+		height: h
+	});
+
+	gradient = new ParticleJS.Gradient()
+		.addStop(0  , '#f00')
+		.addStop(0.7, '#900')
+		.addStop(1  , '#500');
+
+	shader = new ParticleJS.Shader2D.Canvas({
+		canvas    : canvas,
+		gradient  : gradient,
+		sizeCells : 3,
+		colorCells: 16,
+		spriteSize: 32
+	});
+
+	emitter = new ParticleJS.Emitter2D({
+		type        : 'point',
+		x           : 250,
+		y           : 50,
+		velocity    : 110,
+		birthRate   : 80,
+		size        : 30,
+		randomSize  : 0.95,
+		blur        : 0.5,
+		opacity     : 0.8,
+		life        : 15,
+		spreadAngle : 200,
+		spreadOffset: 200,
+		shader      : shader,
+		preRender   : true
+	});
+
+	scene.addEmitter(emitter);
+
+	gravity = new ParticleJS.Physics2D.Gravity({y: 0.025});
+
+	turbulence = new ParticleJS.Physics2D.Turbulence({
+		force: 0.015
+	});
+
+	gradOpacity	= new ParticleJS.Gradient()
+		.addStop(0  , '#f00')
+		.addStop(0.8, '#f00')
+		.addStop(1  , '#000');
+
+	emitter
+		.overLifeGradient("opacity", gradOpacity, 200)
+		.addPhysics(gravity)
+		.addPhysics(turbulence);
+
+	for(var i = 0, r; r = lines[i]; i++) {
+
+		emitter.addPhysics(new ParticleJS.Physics2D.Reflector({
+			x1: r.x1,
+			y1: r.y1,
+			x2: r.x2,
+			y2: r.y2,
+			absorption: r.abs,
+			radius: 16
+		}));
+
+		reflectors.push(new Reflector(r.x1, r.y1, r.x2, r.y2, r.abs));
+	}
+
+	renderReflectors();
+
+	(function loop() {
+		scene.render();
+		requestAnimationFrame(loop);
+	})();
+
+	function renderReflectors() {
+		for(var i = 0, s; s = reflectors[i]; i++) s.render(ctxf);
+	}
+
+	function Reflector(x1, y1, x2, y2, a) {
+
+		this.render = function(ctx) {
+			ctx.beginPath();
+			ctx.moveTo(x1, y1);
+			ctx.lineTo(x2, y2);
+			ctx.lineWidth = 16;
+			ctx.lineCap = 'round';
+			ctx.strokeStyle = '#fff';
+			ctx.font = "bold 12px sans-serif";
+			ctx.stroke();
+
+			ctx.translate(x1, y1);
+			ctx.rotate(Math.atan2(y2-y1, x2-x1));
+			ctx.fillText("Absorption: " + a.toFixed(1), 0, 4);
+			ctx.setTransform(1,0,0,1,0,0);
+		};
+	}
+
+	canvasFixed.onclick = function(e) {
+
+		var r = canvasFixed.getBoundingClientRect(),
+		    x = e.clientX - r.left - 1,
+			y = e.clientY - r.top - 1;
+
+		emitter.position(x, y);
+	}
+
+</script>
+</body>
+</html>

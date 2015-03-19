@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="author" content="(C) Epistemex">
+
+	<title>ParticleJS - Snow demo</title>
+
+	<link href='http://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet' type='text/css'>
+
+	<!-- IMAGE source: http://freebigpictures.com/winter-pictures/winter-landscape/ -->
+
+	<style>
+		html, body {
+			padding:0;
+			margin:0;
+			overflow:hidden;
+			}
+		body {
+			background:black url(gfx/winter.jpg) no-repeat; /* http://i.imgur.com/WKjD9fD.jpg*/
+			background-size: cover;
+			}
+		canvas {
+			position:absolute;
+			left:0;
+			top:0;
+			width:100%;
+			height:100%;
+			}
+		.header {
+			position: absolute;
+			right:75px;
+			top:110px;
+			font:64px Merriweather,sans-serif;
+			color:rgba(50, 50, 90, 0.75);
+			}
+		.sub {
+			position: absolute;
+			right:75px;
+			top:250px;
+			font:22px Merriweather, sans-serif;
+			color:rgba(50, 50, 90, 0.75);
+			z-index:1000;
+			}
+		.button {
+			position: absolute;
+			right:12px;
+			bottom:12px;
+			background:rgba(255,255,255,0.33);
+			padding:5px 10px 0px 10px;
+			border-radius:3px;
+			}
+		.button:hover {
+			position: absolute;
+			right:12px;
+			bottom:12px;
+			background:rgba(255,255,255,0.5);
+			transition: 0.7s background;
+			padding:5px 10px 0px 10px;
+			border-radius:3px;
+			}
+		a, a:active {color:#000;}
+		a:hover {color:#c70;}
+	</style>
+</head>
+<body>
+
+	<canvas id="canvas"></canvas>
+
+	<p class="header">
+		ParticleJS snow demo
+	</p>
+
+	<p class="sub">
+		ParticleJS is dual licensed. Download from <a href="https://github.com/epistemex/particleJS/" target="_blank">GitHub</a>
+	</p>
+
+	<div class="button">
+		<img id="state" src="gfx/pause.png" width="24" height="24">
+	</div>
+
+<script src="../particle.min.js"></script>
+<script>
+
+	var canvas = document.getElementById('canvas'),
+
+		scene,
+	    emitter,
+	    shader,
+	    emitter2,
+	    shader2,
+
+	    gravity,
+	    turbulence,
+		gravity2,
+		turbulence2,
+
+		state = true;
+
+	setCanvasSize();
+
+	// create scene
+	scene = new ParticleJS.Scene({
+		width : canvas.width,
+		height: canvas.height
+	});
+
+	shader = new ParticleJS.Shader2D.Canvas({
+		canvas: canvas,
+		r     : 220,
+		g     : 220,
+		b     : 255
+	});
+
+	shader2 = new ParticleJS.Shader2D.Canvas({
+		canvas: canvas,
+		r     : 220,
+		g     : 220,
+		b     : 255
+	});
+
+	emitter = new ParticleJS.Emitter2D({
+		type          : 'line',
+		x             : -40,
+		y             : 0,
+		endX          : canvas.width + 40,
+		endY          : 0,
+		birthRate     : 140,
+		velocity      : 220,
+		randomVelocity: 0.4,
+		life          : 0,
+		spreadAngle   : 2,
+		spreadOffset  : 90,
+		size          : 10,
+		randomSize    : 0.8,
+		blur          : 0.8,
+		randomBlur    : 0.3,
+		opacity       : 0.6,
+		randomOpacity : 0.5,
+		shader        : shader2,
+		preRender     : true,
+		maxParticles  : 10000
+	});
+
+	emitter2 = new ParticleJS.Emitter2D({
+		type          : 'line',
+		x             : -40,
+		y             : 0,
+		endX          : canvas.width + 40,
+		endY          : 0,
+		birthRate     : 9,
+		velocity      : 400,
+		randomVelocity: 0.4,
+		life          : 0,
+		spreadAngle   : 2,
+		spreadOffset  : 90,
+		size          : 64,
+		randomSize    : 0.8,
+		blur          : 0.8,
+		randomBlur    : 0.3,
+		opacity       : 0.2,
+		randomOpacity : 0.5,
+		shader        : shader,
+		preRender     : false,
+		maxParticles  : 10000
+	});
+
+	scene.addEmitter(emitter);
+	scene.addEmitter(emitter2);
+
+	gravity = new ParticleJS.Physics2D.Gravity({y: 0.008});
+
+	turbulence = new ParticleJS.Physics2D.Turbulence({
+		cellsY: 24,
+		force: 0.015,
+		forceVariation: 0.5
+	});
+
+	emitter.addPhysics(turbulence);
+	emitter.addPhysics(gravity);
+
+	gravity2 = new ParticleJS.Physics2D.Gravity({y: 0.05});
+
+	turbulence2 = new ParticleJS.Physics2D.Turbulence({
+		cellsX: 24,
+		cellsY: 16,
+		force: 0.1,
+		forceVariation: 0.3
+	});
+
+	emitter2.addPhysics(turbulence2);
+	emitter2.addPhysics(gravity2);
+
+	emitter2.globalForce(1.0);
+
+	//window.onresize = setCanvasSize; //todo setting new size not yet supported
+
+	function setCanvasSize() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
+
+	document.getElementById('state').addEventListener('click', function() {
+
+		if (state) {
+			state = false;
+			this.src = 'gfx/play.png';
+			emitter.birthRate(0);
+			emitter2.birthRate(0);
+		}
+		else {
+			state = true;
+			this.src = 'gfx/pause.png';
+			emitter.birthRate(140);
+			emitter2.birthRate(9);
+		}
+
+	}, false);
+
+	(function loop() {
+		scene.render();
+		requestAnimationFrame(loop);
+	})();
+
+</script>
+</body>
+</html>

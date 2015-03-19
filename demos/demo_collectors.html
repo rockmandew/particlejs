@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>ParticleJS - Collector demo</title>
+
+	<style>
+		html, body {margin:0;width:100%;height:100%;overflow:hidden}
+		body {background:#aaa; font:14px sans-serif}
+		#container {width:802px;margin:0 auto}
+		#screen {position:relative; height:530px}
+		canvas {position:absolute;left:0;top:0;border:1px solid #000}
+		#canvas {background:#779}
+		#logo {float:right}
+	</style>
+</head>
+<body>
+
+	<div id="container">
+		<h1>ParticleJS - Collectors (physics) demo</h1>
+
+		<div id="screen">
+			<canvas id="canvas" width="800" height="500"></canvas>
+			<canvas id="canvasFixed" width="800" height="500"></canvas>
+		</div>
+
+		<div id="logo">
+			<a href="https://github.com/epistemex">
+				<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAAAWCAMAAAA2NMTdAAAAhFBMVEUAAAA4SZ44SZ44SZ6AZEw3S584SZ44SZ44SZ44SZ44SZ44SZ4jerSWRV43fo/ULyqxszv1fzFovUX+vzI4SZ6weEY4SZ44SZ44SZ43fo+WRV71fzGxszs4SZ7BkjY3fo9ovUX+vzI4SZ4jerTULypovUX+vzI3fo+WRV6xszv1fzGAZEzOcUV7AAAAInRSTlMAEJ/PQDDvQIC/YCB/QEB/QECAgI8QcK/fgICAgFAwEHBw8/jPYwAAAcJJREFUSMftk9tS4zAMhuW4diyHhQVy2kPKrva8vP/7Ef21YwJTOr0hXPBNZyxZPnwdK/QbfL/+D66vfgJ6VZLE7XYSE7fbS7Tebi8RRt5egtwb6AnlFuy7L6DbXwGUTJ0xJWxmdaf+AcQGyzKP180ZLeiEW4ql1swJ0UfQdTtA3Qdw2CiZGmGKiZmoErHM7EViLYUSBxJhygSdYMlQFAsL5/00D//A19092H3+C5KEWq5DJy0xYwBm5HRLWhcoI35JHGIuUmrRwMHR+RIkrIeVvG2PSgQWR8D6mCWKhXdwOCnR1wceS1R6WCO8tMhaosrdMUs03h5EpVc7tqnmkgUcTkpk9PCgtKP0+EdBEj6uJTL1LEG9tJgcCBICUq9oOuh4xnNYBkNPkKDU65P1x5+DaJCazOiNFrCvUEk1/86SKCEkHLvyDi9IGD+aQSZ6JmGsCsDi6Cd6QkLbJSXDixI0CW7LEmuHxeIG7O8+gTt3AcobgPhUgqwwsDKsJca8RSVwzWiyhOdEdsgWv8DN5R9wefEDkNKETN2EhhZiJDIxlSKBOjzdQgHeJjgU5iyGzBR6SvTBHZV4Td4l3qTEt00lHgBjlGG7Su2augAAAABJRU5ErkJggg==">
+			</a>
+		</div>
+
+	</div> 	<!-- container -->
+
+<script src="js/curve.min.js"></script>
+<script src="../particle.min.js"></script>
+
+<script>
+
+	var canvas = document.getElementById('canvas'),
+		canvasFixed = document.getElementById('canvasFixed'),
+	    ctx = canvas.getContext('2d'),
+	    ctxf = canvasFixed.getContext('2d'),
+
+	    w = canvas.width,
+	    h = canvas.height,
+
+		scene,
+		emitter,
+		shader,
+
+	    gravity,
+	    coll1,
+	    coll2,
+	    coll3,
+
+	    lines = [
+		    {x1: 20, y1: 200, x2: 200},
+		    {x1: 300, y1: 400, x2: 400},
+		    {x1: 500, y1: 300, x2: 750}
+	    ],
+	    shelves = [];
+
+	scene = new ParticleJS.Scene({
+		width: w,
+		height: h
+	});
+
+	shader = new ParticleJS.Shader2D.Canvas({
+		canvas: canvas
+	});
+
+	emitter = new ParticleJS.Emitter2D({
+		type: 'line',
+		x: 0,
+		y: 0,
+		endX: w,
+		endY: 0,
+		size: 5,
+		life: 0,
+		opacity:0.8,
+		spreadAngle: 180,
+		spreadOffset: 0,
+		shader: shader,
+		preRender: true
+	});
+
+	scene.addEmitter(emitter);
+
+	gravity = new ParticleJS.Physics2D.Gravity({y: 0.02});
+
+	coll1 = new ParticleJS.Physics2D.Collector({
+		x1: lines[0].x1,
+		y1: lines[0].y1,
+		x2: lines[0].x2,
+		y2: lines[0].y1,
+		callback: collect1
+	});
+
+	coll2 = new ParticleJS.Physics2D.Collector({
+		x1: lines[1].x1,
+		y1: lines[1].y1,
+		x2: lines[1].x2,
+		y2: lines[1].y1,
+		callback: collect2
+	});
+
+	coll3 = new ParticleJS.Physics2D.Collector({
+		x1: lines[2].x1,
+		y1: lines[2].y1,
+		x2: lines[2].x2,
+		y2: lines[2].y1,
+		callback: collect3
+	});
+
+	emitter .addPhysics(gravity)
+			.addPhysics(coll1)
+			.addPhysics(coll2)
+			.addPhysics(coll3);
+
+	// collision objects
+	shelves.push(new Shelf(lines[0].x1, lines[0].y1, lines[0].x2, lines[0].y1),
+				 new Shelf(lines[1].x1, lines[1].y1, lines[1].x2, lines[1].y1),
+				 new Shelf(lines[2].x1, lines[2].y1, lines[2].x2, lines[2].y1));
+
+	renderShelves();
+
+	(function loop() {
+		scene.render();
+		requestAnimationFrame(loop);
+	})();
+
+	function renderShelves() {
+		for(var i = 0, s; s = shelves[i]; i++) s.render(ctxf);
+	}
+
+	function collect1(e) {shelves[0].add(e.particle).render(ctxf)}
+	function collect2(e) {shelves[1].add(e.particle).render(ctxf)}
+	function collect3(e) {shelves[2].add(e.particle).render(ctxf)}
+
+	function Shelf(x1, y1, x2, y2) {
+
+		var w = x2-x1,
+		    cellWidth = 5,
+		    cellHeight = 0.2,
+			cellCount = Math.max(1, ((w / cellWidth)|0)),
+		    cells = new Uint8Array(cellCount);
+
+		this.add = function(p) {
+			var i = ((p.x - x1) / cellWidth)|0;
+			if (cells[i] < 200) cells[i]++;
+			return this;
+		};
+
+		this.render = function(ctx) {
+
+			ctx.beginPath();
+
+			var spline = [x1, y1],
+			    i = 0,
+			    l = cells.length,
+			    v, t;
+
+			for(; i < l; i++) {
+				t = i/l;
+				v = cells[i] * cellHeight * (0.3 + 0.7 * (t < 0.5 ? t : 1-t));
+				spline.push(x1 + cellWidth * i, y1 - v);
+			}
+
+			spline.push(x2, y2);
+
+			ctx.moveTo(x1, y1);
+			ctx.curve(spline, 0.3);
+
+			ctx.fillStyle = '#fff';
+			ctx.fill();
+
+			ctx.fillStyle = '#000';
+			ctx.fillRect(x1, y1-1, x2-x1, 12);
+
+		};
+
+	}
+
+</script>
+</body>
+</html>
