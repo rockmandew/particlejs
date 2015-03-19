@@ -40,15 +40,26 @@ Features (alpha)
 - Animated turbulence (3D Perlin/Simplex noise based)
 
 
+Demos
+-----
+
+- **[Candle light](http://epistemex.github.io/particlejs/demos/demo_candle.html)** (tip: you can turn on/off the light)
+- **[Snow](http://epistemex.github.io/particlejs/demos/demo_snow.html)**
+- **[Fireworks](http://epistemex.github.io/particlejs/demos/demo_fireworks.html)**
+- **[Audio visualizer](http://epistemex.github.io/particlejs/demos/demo_audioviz.html)**
+- **[Logo dissolved to gold dust](http://epistemex.github.io/particlejs/demos/demo_logo.html)**
+- **[Logo dissolved to sand](http://epistemex.github.io/particlejs/demos/demo_logo2.html)** (tip: you can draw with sand after animation finishes..)
+- **[Water drops](http://epistemex.github.io/particlejs/demos/demo_waterrings.html)**
+- **[Collectors](http://epistemex.github.io/particlejs/demos/demo_collectors.html)**
+- **[Reflectors](http://epistemex.github.io/particlejs/demos/demo_reflectors.html)**
+
+
 Usage
 -----
 
 More details will be published when it goes to beta. API is not 100%
 settled yet as some tweaks and changes may have to be made to keep it
 able to run real-time.
-
-Demos coming...
-
 
 Issues
 ------

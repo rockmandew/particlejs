@@ -531,8 +531,35 @@ ParticleJS.Emitter2D = function(options) {
 	 * @returns {ParticleJS.Emitter2D}
 	 * @private
 	 */
-	this.overLifeBezier = function(type, c1x, c1y, c2x, c2y, resolution) {
+	this.overLifeBezier = function(type, y1, c1y, c2y, y2, resolution) {
+		//this.overLifeBezier = function(type, c1x, c1y, c2x, c2y, resolution) {
 
+		var arr = new Float32Array(resolution || 64),
+			i = 0,
+			l = arr.length;
+
+		for(; i < l; i++) {
+			arr[i] = bezier3(y1, c1y, c2y, y2, i / (l - 1));
+		}
+
+		_setOverLifeArray(type, arr);
+
+		function bezier3(z0y, c0y, c1y, z1y, t) {
+
+			var tm1 = 1 - t,			// (1 - t)
+				tm12 = tm1 * tm1,		// (1 - t) ^ 2
+				tm13 = tm12 * tm1,		// (1 - t) ^ 3
+				t2 = t * t,				// t ^ 2
+				t3 = t2 * t,			// t ^ 3
+				tmm3 = t * 3 * tm12,	// 3 x t * (1 - t) ^ 2
+				tmm23 = t2 * 3 * tm1;	// t ^ 2 * 3 * (1 - t)
+
+			return tm13 * z0y + tmm3 * c0y + tmm23 * c1y + t3 * z1y;
+		}
+
+		return this;
+
+		/*
 		var arr = new Float32Array(resolution || 64),
 			i = 0, l = arr.length - 1;
 
@@ -603,7 +630,7 @@ ParticleJS.Emitter2D = function(options) {
 			return bparam(t, 1000);	// note: t, duration
 		}
 
-		return this;
+		return this;*/
 	};
 
 	/**
