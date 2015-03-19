@@ -1,0 +1,218 @@
+Change log for ParticleJS
+-------------------------
+
+0.2.4 ALPHA
+
+
+
+0.2.3 ALPHA
+
+ADD: Sprite shader (uses an external sprite-sheet).
+ADD: Finished support for rotation (emitter, sprite shader)
+ADD: Preview of new "physics" plugin, Path (force particles to follow a
+     spline path). Work in progress.
+CHG: Raw source files renamed removing prefix "particle.".
+
+0.2.2 ALPHA
+
+CHG: canvas argument for shader removed and replaced by option in option object
+CHG: All color info moved to shader itself (gradient, rgb, randomColor etc.)
+CHG: "feather" is not termed "blur" to cover more areas (glow, feather, shadow, ...)
+CHG: Minor updates and improvements
+FIX: Emitter rate now accurate
+FIX: Various minor bugs
+FIX: Should be no initial or over-life arrays when life=0
+
+
+0.2.1 ALPHA
+
+ADD: Nozzle physics plugin (similar to vortex but limited angle and only
+     one direction).
+ADD: dirty marking of physics plugins for future blending
+ADD: count property on emitter with current count of alive particles
+FIX: Bug in SimplexNoise algorithm. Now creates smoother transitions
+FIX: Version number messed up
+FIX: Methods spreadAngle and angle was switched, angle->angleOffset
+
+
+0.2.0 ALPHA
+
+ADD: Vector class
+CHG: Map object rewritten to pure vector maps.
+CHG: Map based physics plugins updated for rewritten map object
+IMP: Speed improvements in physics (map objects)
+ISU: Bezier for over-life curve (x must be reimplemented and traverse of
+     t instead)
+
+
+0.1.11 ALPHA
+
+ADD: scaleX/scaleY options for canvas 2D shader
+ADD: New over-life method (overLifeBezier) for emitter takes Bezier
+     curve definition improving end result. See updated candle demo.
+ADD: New over-life method (overLifeGradient) for emitter takes Gradient
+     object improving end result. See updated candle demo.
+ADD: Air physics plugin for air-resistance (explosions, raging fire,
+     breath, frost etc.)
+ADD: added method gravityFromAngle(angle, force) to Gravity plugin.
+ADD: Waves physics (prev. Wind (complex)) added with frequency/amp. to
+     create wave force grid.
+ADD: ID property for each physics plugin.
+ADD: getPhysics(id|index) for emitter.
+CHG: Physics plugin renamed Wind -> Waves
+CHG: Physics plugin renamed WindSimple -> Wind
+
+
+0.1.10 ALPHA
+
+ADD: DEMO: Reflector physics
+ADD: DEMO: Collector physics
+ADD: Optional callback for reflector when hit (can replace collector)
+CHG: Turbulence now uses common map object
+CHG: Map to image tool rewritten to take map object
+CHG: Common hit-map generator (currently line only with radius)
+FIX: SimplexNoise dot product function didn't consider z arg.
+FIX: SimplexNoise had 0.5 instead of 0.6 in t0 skewing the end result
+FIX: Forgot to update normal vector when changing line position post for
+     reflector.
+FIX: Bug if no gradient was defined with life > 0 then color index
+     failed.
+
+
+0.1.9 ALPHA
+
+ADD: Collector line for physics. Absorbs particles and can be used to
+     build up dead particle representation (ie. snow landing on shelfs
+     etc.). Supports callback with the collected particle.
+ADD: Reflector line for physics. Reflects particles at any angle taking
+     into account incident angle and optional absorption. Can also be
+     used for collection (abs.=1) but doesn't provide a callback yet.
+ADD: Added width and height to drawObject (in debug mode from shader)
+ADD: kill() method for particle objects (primarily for physics plugins)
+ADD: Convenience methods to particle objects to calculate angle etc.
+ADD: Hit-test flag for particle used in collision detection
+CHG: All physics plugins rewritten to take an option object as argument
+
+
+0.1.8 ALPHA
+
+ADD: Particle rotation (for shaders supporting rotation), rotation over
+     life
+ADD: Bound based particle if life=0. Particle will die if outside
+     drawing surface (for now, later: custom region)
+ADD: Implementation of remainder for generating particles for better
+     spawn accuracy
+ADD: Preview shader added to show particle bounds
+ADD: Options to control caching added to shader (temporary until
+     centralized cache engine is available). This can help optimize
+     color and size transitions.
+CHG: WindSimple physics: windAngle -> angle, windForce -> force
+
+
+0.1.7 ALPHA
+
+ADD: DEMO: candle light
+ADD: Option to use image to clear background when enabling pre-render
+     for shader (option: image).
+ADD: Draw object for debug mode
+
+
+0.1.6 ALPHA
+
+ADD: DEMO: snow
+ADD: DEMO: fireworks
+ADD: DEMO: Audio visualizer (newer Chrome or Firefox) (the music track
+     used here is freely distributable btw)
+ADD: "blur" clear now supports transparency (shader option with
+     clearOpacity: keepAlpha (bool)).
+ADD: added method to scene to render without generating particles. This
+     allow manual generation directly from the emitter (see audio demo).
+ADD: three new emitter types: line, box, grid in addition to point
+ADD: common map object for physics engine
+ADD: starting (slowly) jsdoc implementation
+ADD: random color support (over life with gradient)
+ADD: max particles option for emitter
+CHG: LICENSE CHANGE
+CHG: emitter option spreadAngle->spreadOffset, spread->spreadAngle
+CHG: Changed particles internal array from 2D to 1D
+CHG: Vortex plugin uses new map object
+CHG: simplified namespace (turbulence.noise->turbulence,
+     turbulence.vortex->vortex, Emitter2D.Point->Emitter2D).
+CHG: moving air-resistance from wind -> gravity
+FIX: gradient in shader referenced parent context by accident instead of
+     local ref.
+
+
+0.1.5 ALPHA
+
+ADD: Enable reverse z-order for rendering
+ADD: New globalForce method on emitter affecting the end velocity
+ADD: Z-depth animate-able turbulence with jitter-array
+ADD: methods to turbulence plugins
+CHG: wind plugin rewritten to support map for wave effect
+CHG: vortex plugin now caches angle maps
+CHG: renaming renderer -> shader
+CHG: emitter.setShader() (was: setRenderer()) is now async capable
+CHG: merging init() and setup() for shader -> init() only (internal)
+CHG: feather value uses normalized values [0.0, 1.0] instead of %
+CHG: variation values uses normalized values [0.0, 1.0] instead of %
+CHG: Turbulence tools and plugins: getMap() -> getMapImage().
+FIX: misc. optimizations and fixes
+
+
+0.1.4 ALPHA
+
+ADD: Added 3D version of SimplexNoise (Perlin noise) for animation. Will
+     replace 2D version (patent issues with 3D impl. being checked).
+ADD: Vortex physics plugin. Supports suction/repulsion, gradient radial
+     force. Chain several to create multiple vortex fields.
+CHG: Vortex replaces magnet (set suction to 1.0)
+CHG: Initialization of physics plugins is now asynchronous. Callback is
+     optional though and is only needed where the plugin itself require
+     asynchronous setup (ie. web workers etc.). Will let this live a
+     while and see if need changes.
+CHG: Centralized time-compensation value so it's only calculated once.
+     Each physics plugin now calculates wo/ needing to know the comp.
+CHG: Physics plugin's init() now gets an object passed in instead of
+     width and height parameters.
+CHG: Optimized and fixed a bug in the 3D SimplexNoise implementation.
+CHG: Conceptual change for feather. Is now percentage of max possible
+     feather.
+
+
+0.1.3 ALPHA
+
+ADD: Preliminary grid based turbulence physics with custom resolution
+     (SimplexNoise (Perlin based noise) implemented)
+CHG: Physics is changed to separate plugins. Each physic model is
+     created separately (wind, magnet, gravity etc.) and added to
+     emitter via addPhysics in the order needed. Each physics plugin has
+     its own methods for adjustments. This adds major flexibility with
+     very little additional performance cost.
+
+
+0.1.2 ALPHA
+
+IMP: performance improvements
+CHG: emitter must be created manually, then added using same method as
+     before
+ADD: Magnet force (initial behavior, will most likely morph into a
+     different effect and replaced with a more realistic behavior).
+ADD: translate() to emitter to move emitter and all particles incl. old
+     (as moving emitter alone won't affect old particles).
+
+
+0.1.1 ALPHA
+
+CHG: scene.addEmitter() returns a reference for the created emitter
+CHG: Speed improvements in renderer using scaled cache
+ADD: Support for variable feather size (random based on %)
+ADD: Common function for calculating random spread
+ADD: Improved "GC" of empty arrays
+ADD: method on emitter to set render
+FIX: Various minor bugs in ranges
+
+
+0.1.0 ALPHA
+
+Initial release
