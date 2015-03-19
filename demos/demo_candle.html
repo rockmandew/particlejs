@@ -121,7 +121,7 @@
 	</p>
 
 	<p id="sub" class="textOffS">
-		ParticleJS is dual licensed. Download from <a class="linkOff" id="link" href="https://github.com/epistemex/particleJS/" target="_blank">GitHub</a>
+		ParticleJS is dual licensed. Download from <a class="linkOff" id="link" href="https://github.com/epistemex/particlejs/" target="_blank">GitHub</a>
 	</p>
 
 	<div class="button">
@@ -138,8 +138,7 @@
 
 	    imgCandle = new Image,
 	    imgDark = new Image,
-	    imgGlow = new Image,
-	    imgCnt = 3,
+	    imgCnt = 2,
 
 		scene,
 	    emitterFlame,
@@ -389,11 +388,10 @@
 
 	}, false);
 
-	imgCandle.onload = imgGlow.onload = imgDark.onload = loader;
+	imgCandle.onload = imgDark.onload = loader;
 
 	imgCandle.src = "gfx/candlelight.png";
 	imgDark.src = "gfx/candlelight_dark.png";
-	imgGlow.src = "gfx/glow.png";
 
 	function loader() {
 		imgCnt--;
