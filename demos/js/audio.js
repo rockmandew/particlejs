@@ -36,7 +36,7 @@ var	canvas = document.getElementById('canvas'),
 	path = 'audio/pvp_colibris',
 	delta = 2,
 	steps = 32,
-	angleStep = 2*Math.PI/(steps-1),
+	angleStep = 2*Math.PI/steps,
 	globalAngle = 0,
 	iRad = 60,
 	oRad = cy*0.9,
@@ -225,10 +225,10 @@ function draw() {
 
 		v = fft[i];
 
-		//if (v > fftS[i]) fftS[i] = v;
+		if (v > fftS[i]) fftS[i] = v;
 		if (fft[i] >= delta) fft[i] -= delta;
 
-		var a = angleStep * id,
+		var a = angleStep * i,
 			l = (oRad - iRad) * (fft[i] / 255) + 1 + iRad,
 			c = Math.cos(a+globalAngle),
 			s = Math.sin(a+globalAngle),
