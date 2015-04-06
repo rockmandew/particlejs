@@ -31,6 +31,7 @@ var	canvas = document.getElementById('canvas'),
 	fft,
 	fftS,
 	fftLen,
+	fftLen2,
 	src,
 	path = 'audio/pvp_colibris',
 	delta = 2,
@@ -186,7 +187,8 @@ function setup() {
 	fftLen = analyser.frequencyBinCount;
 	fft = new Uint8Array(fftLen);
 	fftS = new Uint8Array(fftLen);
-
+	fftLen2 = Math.ceil(analyser.frequencyBinCount * 10000 / (actx.sampleRate / 2));
+	
 	ctx.strokeStyle = '#fff';
 	ctx.lineWidth = 4;
 	ctx.lineCap = 'round';
@@ -210,7 +212,7 @@ function draw() {
 
 	ctx.beginPath();
 
-	for(; i < fftLen; i += 2) {
+	for(; i < fftLen2; i += 2) {
 		v = fft[i];
 		sz += v;
 	}
@@ -219,14 +221,14 @@ function draw() {
 
 	turb.force(0.02 + 0.08 * f);
 
-	for(i = 0; i < fftLen; i += 2) {
+	for(i = 0; i < fftLen2; i += 2) {
 
 		v = fft[i];
 
 		if (v > fftS[i]) fftS[i] = v;
 		if (fft[i] >= delta) fft[i] -= delta;
 
-		var a = angleStep * i * 0.5,
+		var a = angleStep * i,
 			l = (oRad - iRad) * (fft[i] / 255) + 1 + iRad,
 			c = Math.cos(a+globalAngle),
 			s = Math.sin(a+globalAngle),
